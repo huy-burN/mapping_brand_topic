@@ -107,5 +107,4 @@ def analyze_random_message(excel_path, api_key):
 
 # Sử dụng hàm
 excel_path = r'C:/Users/admin/Downloads/AI_Data_MBBANK.xlsx'
-papipipey = 's'
 analyze_random_message(excel_path, api_key)
