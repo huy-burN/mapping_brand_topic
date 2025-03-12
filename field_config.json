@@ -1,0 +1,152 @@
+{
+    "tag": {
+        "input_required": [],
+        "short": "tag",
+        "definition": "",
+        "type": "int",
+        "mapping": {},
+        "active": false
+    },
+    "sentiment_score": {
+        "input_required": ["message", "object_name"],
+        "short": "stm",
+        "definition": "Cảm xúc của bài viết hướng đến nhãn hàng",
+        "type": "float",
+        "mapping": {
+            "-1.0 -> -0.8": "Khiếu nại mạnh, tố cáo, khả năng bùng phát khủng hoảng",
+            "-0.8 -> -0.4": "Có ý kiến không hài lòng nhưng không quá nặng",
+            "-0.4 -> 0.4": "Nội dung trung lập, không thiên về phía nào",
+            "0.4 -> 0.8": "Đánh giá tốt, phản hồi hài lòng",
+            "0.8 -> 1.0": "Rất nhiều lời khen ngợi, viral quảng bá tự nhiên"
+        },
+        "active": true
+    },
+    "service_id": {
+        "input_required": [],
+        "short": "sv",
+        "definition": "",
+        "type": "str",
+        "mapping": {},
+        "active": false
+    },
+    "topic": {
+        "input_required": ["message"],
+        "short": "tp",
+        "definition": "Chủ đề của bài đăng dựa trên nội dung bài viết",
+        "type": "str",
+        "mapping": {},
+        "active": false
+    },
+    "topic_id": {
+        "input_required": ["message"],
+        "short": "tpid",
+        "definition": "Chủ đề của bài đăng dựa trên nội dung bài viết",
+        "type": "int",
+        "mapping": {},
+        "active": false
+    },
+    "relation_score": {
+        "input_required": ["message", "object_name"],
+        "short": "rl",
+        "definition": "Độ liên quan trực tiếp dựa trên nội dung bài viết đến nhãn hàng",
+        "type": "float",
+        "mapping": {},
+        "active": false
+    },
+    "value_score": {
+        "input_required": ["message", "object_name"],
+        "short": "val",
+        "definition": "Giá trị dựa trên nội dung bài viết tới nhãn hàng",
+        "type": "float",
+        "mapping": {},
+        "active": false
+    },
+    "summary": {
+        "input_required": ["message"],
+        "short": "smr",
+        "definition": "Tóm tắt nội dung bài viết trong tối đa 50 từ",
+        "type": "str",
+        "mapping": {},
+        "active": false
+    },
+    "explain": {
+        "input_required": [],
+        "short": "expl",
+        "definition": "Giải thích tại sao lại có kết quả như vậy",
+        "type": "str",
+        "mapping": {},
+        "active": false
+    },
+    "sub_brand": {
+        "input_required": [],
+        "short": "subb",
+        "definition": "",
+        "type": "int",
+        "mapping": {},
+        "active": false
+    },
+    "context": {
+        "input_required": [],
+        "short": "cnt",
+        "definition": "",
+        "type": "str",
+        "mapping": {},
+        "active": false
+    },
+    "info_source_id": {
+        "input_required": [],
+        "short": "if_s",
+        "definition": "Phân loại nguồn thông tin dựa trên nội dung bài viết và tên người đăng",
+        "type": "str",
+        "mapping": {},
+        "active": false
+    },
+    "predict_info_source_id": {
+        "input_required": [],
+        "short": "p_if_s",
+        "definition": "Dựa vào nội dung bài viết hãy dự đoán có phải thuộc về KOL, Hotpage đăng hay không",
+        "type": "str",
+        "mapping": {"0": "Từ nguồn khác", "1": "KOL", "2": "Hotpage"},
+        "active": false
+    },
+    "attribute": {
+        "input_required": [],
+        "short": "attr",
+        "definition": "",
+        "type": "",
+        "mapping": {},
+        "active": false
+    },
+    "spam_filter": {
+        "input_required": [],
+        "short": "sp_f",
+        "definition": "",
+        "type": "",
+        "mapping": {},
+        "active": false
+    },
+    "language": {
+        "input_required": ["message"],
+        "short": "lang",
+        "definition": "Dựa vào nội dung bài viết thì ngôn ngữ chính là gì",
+        "type": "str",
+        "mapping": {"1": "tiếng việt", "2": "tiếng anh"},
+        "active": false
+    },
+    "user_filter": {
+        "input_required": [],
+        "short": "u_f",
+        "definition": "",
+        "type": "",
+        "mapping": {},
+        "active": false
+    },
+    "confidence_score": {
+        "input_required": [],
+        "short": "sc",
+        "definition": "Độ tự tin sau khi phân tích và cho ra kết quả",
+        "type": "float",
+        "mapping": {"0": "nhỏ nhất", "1": "lớn nhất"},
+        "active": false
+    }
+}
