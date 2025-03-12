@@ -1,14 +1,34 @@
 import openai
 import json
-from o import get_random_message_from_excel
+import concurrent.futures
+import pandas as pd
+import time
+import random
+
+class RateLimitHandler:
+    def __init__(self, max_retries=5, base_delay=1):
+        self.max_retries = max_retries
+        self.base_delay = base_delay
+
+    def wait_with_exponential_backoff(self, retry_count):
+        """Implement exponential backoff with jitter"""
+        delay = min(
+            self.base_delay * (2 ** retry_count),  # Exponential backoff
+            60  # Max wait time of 1 minute
+        )
+        jitter = random.uniform(0, 0.1 * delay)  # Add small random jitter
+        wait_time = delay + jitter
+        print(f"Waiting {wait_time:.2f} seconds before retry...")
+        time.sleep(wait_time)
 
 def classify_message_with_gpt(message, api_key):
-    # Thiết lập API key
+    """Phân loại tin nhắn bằng GPT-4 với xử lý rate limit"""
     openai.api_key = api_key
+    rate_limiter = RateLimitHandler()
     
-    # Tạo prompt cho GPT
-    prompt = f"""Hãy phân tích nội dung tin nhắn sau và chọn 1 chủ đề phù hợp nhất từ danh sách mapping. 
-    Chỉ trả về số của chủ đề (1-36) và giải thích ngắn gọn.
+    prompt = f"""Hãy phân tích nội dung tin nhắn sau và chọn 1 chủ đề phù hợp nhất từ danh sách mapping (1-36), sau đó chỉ trả về câu trả lời kết quả là 1 hoặc 0
+    Nếu thông tin thuộc về chủ đề số <20 thì chỉ trả về số 1
+    Nếu thông tin thuộc về chủ đề số >=20 thì chỉ trả về số 0
     
     Tin nhắn: "{message}"
     
@@ -32,7 +52,6 @@ def classify_message_with_gpt(message, api_key):
     "18": "Cho thuê dịch vụ (không liên quan tài chính MB Bank): Dịch vụ thuê ngoài nhắc đến MB Bank, không liên quan hoạt động tài chính.",
     "19": "Nội dung ngoại ngữ (chứa từ khóa MB Bank): Nội dung tiếng nước ngoài chứa từ khóa MB Bank, không liên quan thương hiệu.",
 
-
     "20": "Báo cáo tài chính, định kỳ MB Bank: Báo cáo tài chính, kết quả kinh doanh MB Bank (MBB: HOSE), ảnh hưởng đến đánh giá nhà đầu tư.",
     "21": "Thị trường chứng khoán (liên quan MBB: HOSE): Tin tức chứng khoán liên quan cổ phiếu MBB, ảnh hưởng uy tín tài chính MB Bank.",
     "22": "Tuyển dụng MB Bank: Thông tin tuyển dụng của MB Bank, ảnh hưởng thương hiệu tuyển dụng.",
@@ -51,39 +70,73 @@ def classify_message_with_gpt(message, api_key):
     "35": "Thông tin khuyến mại, ưu đãi của MB Bank: Các chương trình giảm giá, hoàn tiền, quà tặng khi sử dụng dịch vụ của MB Bank. (Tách riêng với mục 3 - Minigame, quà tặng vì mục này tập trung vào khuyến mại liên quan trực tiếp đến sản phẩm/dịch vụ)."
     "36": "Tin tức về công nghệ, ứng dụng mới của MB Bank: Ví dụ: MB Bank ra mắt tính năng mới trên app MBBank, áp dụng công nghệ AI vào dịch vụ... Những thông tin này thể hiện sự đổi mới và nỗ lực cải thiện dịch vụ của ngân hàng."
 
-
-    Trả về theo format:
-    Chủ đề số: [số]
-    Giải thích: [giải thích ngắn gọn]
-
     """
-
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "Bạn là assistant phân tích và phân loại nội dung."},
-                {"role": "user", "content": prompt}
-            ]
-        )
+    
+    for attempt in range(rate_limiter.max_retries):
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "Bạn là assistant phân tích và phân loại nội dung."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=500  # Giới hạn token để giảm chi phí
+            )
+            return response.choices[0].message['content']
         
-        return response.choices[0].message['content']
-    
-    except Exception as e:
-        return f"Có lỗi xảy ra khi gọi GPT API: {str(e)}"
+        except openai.error.RateLimitError as e:
+            print(f"Rate limit error on attempt {attempt + 1}: {str(e)}")
+            if attempt < rate_limiter.max_retries - 1:
+                rate_limiter.wait_with_exponential_backoff(attempt)
+            else:
+                return f"Quá số lần thử lại. Lỗi: {str(e)}"
+        
+        except Exception as e:
+            print(f"Unexpected error: {str(e)}")
+            return f"Có lỗi xảy ra: {str(e)}"
 
-# Sử dụng hai hàm kết hợp
-def analyze_random_message(excel_path, api_key):
-    # Lấy tin nhắn ngẫu nhiên từ Excel
-    message = get_random_message_from_excel(excel_path)
-    print(f"Tin nhắn ngẫu nhiên: {message}\n")
+def analyze_messages(messages, api_key):
+    """Phân tích nhiều tin nhắn với giới hạn đồng thời"""
+    results = []
+    # Giảm số lượng worker để tránh quá tải
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        # Thêm delay giữa các lô xử lý
+        chunk_size = 5
+        for i in range(0, len(messages), chunk_size):
+            chunk = messages[i:i+chunk_size]
+            futures = [executor.submit(classify_message_with_gpt, message, api_key) for message in chunk]
+            
+            for future in concurrent.futures.as_completed(futures):
+                results.append(future.result())
+            
+            # Delay giữa các lô để tránh rate limit
+            time.sleep(2)
     
-    # Phân loại tin nhắn bằng GPT
-    classification = classify_message_with_gpt(message, api_key)
-    print("\nKết quả phân loại:")
-    print(classification)
+    return results
+
+def main(excel_path, api_key, sheet_name='test'):
+    try:
+        df = pd.read_excel(excel_path, sheet_name=sheet_name)
+        messages = df['MESSAGE'].tolist()
+        
+        # Giới hạn số lượng tin nhắn để xử lý
+        max_messages = 50
+        messages = messages[:max_messages]
+        
+        results = analyze_messages(messages, api_key)
+        
+        print("\nKết quả phân loại:")
+        for i, result in enumerate(results):
+            print(f"Tin nhắn {i+1}:\n{result}\n")
+
+    except FileNotFoundError:
+        print(f"File Excel '{excel_path}' không tồn tại.")
+    except KeyError:
+        print(f"Sheet '{sheet_name}' hoặc cột 'Tin nhắn' không tồn tại trong file Excel.")
+    except Exception as e:
+        print(f"Có lỗi xảy ra: {e}")
 
 # Sử dụng hàm
 excel_path = r'C:/Users/admin/Downloads/AI_Data_MBBANK.xlsx'
-api_key = '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'  # Thay thế bằng API key của bạn
-analyze_random_message(excel_path, api_key)
+api_key = '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'
+main(excel_path, api_key)
