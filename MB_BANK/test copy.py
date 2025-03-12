@@ -4,7 +4,7 @@ import openai
 import time
 
 # Cấu hình OpenAI API
-openai.api_key = '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'
+#openai.apapipipey = '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'
 max_retries = 10
 
 

@@ -138,5 +138,5 @@ def main(excel_path, api_key, sheet_name='test'):
 
 # Sử dụng hàm
 excel_path = r'C:/Users/admin/Downloads/AI_Data_MBBANK.xlsx'
-api_key = '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'
+papipipey = ''
 main(excel_path, api_key)
