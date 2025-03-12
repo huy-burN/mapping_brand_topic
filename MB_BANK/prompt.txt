@@ -1,25 +1,7 @@
-import concurrent.futures
-import pandas as pd
-import openai
-import time
-
-# Cấu hình OpenAI API
-popenpapai= 'papipey'
-max_retries = 10
-
-
-# Hàm đọc tin nhắn từ file Excel
-def get_messages_from_excel(file_path, sheet_name="test"):
-    df = pd.read_excel(file_path, sheet_name=sheet_name)
-    if "MESSAGE" not in df.columns:
-        raise ValueError("Không tìm thấy cột MESSAGE trong file Excel")
-    return df["MESSAGE"].dropna().tolist()  # Bỏ giá trị NaN nếu có
-
-# Hàm gọi GPT để phân loại tin nhắn
-def classify_message_with_gpt(message):
-    prompt = f"""Trả về 1 hoặc 0 theo quy tắc:  
-- Nếu tin nhắn thuộc chủ đề từ 1 đến 19, trả về 1.  
-- Nếu tin nhắn thuộc chủ đề từ 20 đến 36, trả về 0.  
+"""Trả về 1 hoặc 0 theo quy tắc:
+- Nếu tin nhắn thuộc chủ đề từ 1 đến 19, trả về 1.
+- Nếu tin nhắn thuộc chủ đề từ 20 đến 36, trả về 0.
+- Nếu tin nhắn không khớp với bất kỳ chủ đề nào, trả về 2.
     
     Tin nhắn: "{message}"
     
@@ -61,51 +43,6 @@ def classify_message_with_gpt(message):
     "35": "Thông tin khuyến mại, ưu đãi của MB Bank: Các chương trình giảm giá, hoàn tiền, quà tặng khi sử dụng dịch vụ của MB Bank. (Tách riêng với mục 3 - Minigame, quà tặng vì mục này tập trung vào khuyến mại liên quan trực tiếp đến sản phẩm/dịch vụ)."
     "36": "Tin tức về công nghệ, ứng dụng mới của MB Bank: Ví dụ: MB Bank ra mắt tính năng mới trên app MBBank, áp dụng công nghệ AI vào dịch vụ... Những thông tin này thể hiện sự đổi mới và nỗ lực cải thiện dịch vụ của ngân hàng."
     
-    Chỉ trả về một số duy nhất là 1 hoặc 0, không được trả về một giá trị nào khác.
+    Chỉ trả về một số duy nhất là 1,0 hoặc 2, không được trả về một giá trị nào khác.
 
     """
-    for attempt in range(max_retries):
-        try:
-            response = openai.ChatCompletion.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Đóng vai là chuyên gia phân tích dữ liệu xây dựng các báo cáo sức khỏe thương hiệu, báo cáo khủng hoảng, báo cáo truyền thông, báo cáo nghiên cứu người dùng, khách hàng"},
-                {"role": "user", "content": prompt}
-            ]
-        )
-            return response.choices[0].message['content']
-        
-        except openai.error.RateLimitError as e:
-            wait_time = (attempt + 1) * 2  # Chờ tăng dần (2s, 4s, 6s...)
-            print(f"Rate limit hit. Thử lại sau {wait_time} giây...")
-            time.sleep(wait_time)
-
-        except Exception as e:
-            return f"Lỗi khác: {str(e)}"
-    
-
-# Hàm chạy song song
-def classify_messages_concurrently(messages, max_workers=1):
-    results = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_message = {executor.submit(classify_message_with_gpt, msg): msg for msg in messages}
-        for future in concurrent.futures.as_completed(future_to_message):
-            message = future_to_message[future]
-            try:
-                classification = future.result()
-            except Exception as e:
-                classification = f"Lỗi xử lý: {str(e)}"
-            results.append((message, classification))
-    return results
-
-# Chạy script
-excel_path = "C:/Users/admin/Downloads/test_work.xlsx"  # Đường dẫn file đã tải lên
-messages = get_messages_from_excel(excel_path)
-
-# Chạy phân loại song song
-results = classify_messages_concurrently(messages[:2])  
-
-# Lưu kết quả vào file Excel
-df_results = pd.DataFrame(results, columns=["MESSAGE", "tag"])
-df_results.to_excel("C:/Users/admin/Downloads/result.xlsx", index=False)
-print("xong")

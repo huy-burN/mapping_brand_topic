@@ -1,12 +1,12 @@
-from openai import OpenAI
-client = OpenAI()
+from google import genai
 
-completion = client.chat.completions.create(
-    model="gpt-4o",
-    messages=[{
-        "role": "user",
-        "content": "Write a one-sentence bedtime story about a unicorn."
-    }]
-)
+def classify_message_with_gemini(api_key):
+    client = genai.Client(api_key)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash", contents="Explain how AI works"
+    )
+    print(response.text)
 
-print(completion.choices[0].message.content)
+api_key = 'AIzaSyADwbsY0ZfoPv6eACowf1TXXl0RL49lTvk'
+if __name__== '__main__':
+    classify_message_with_gemini()
