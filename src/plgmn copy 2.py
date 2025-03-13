@@ -4,7 +4,7 @@ import time
 import google.generativeai as genai
 from concurrent.futures import ThreadPoolExecutor
 
-# Load mapping.json
+# Load mapping
 mapping_path = 'D:/GIT_files/8-3_weekend_work/MB_BANK/mapping.json'
 with open(mapping_path, 'r', encoding='utf-8') as file:
     data = json.load(file)
@@ -23,15 +23,19 @@ def get_messages_from_excel(file_path, num_messages=202):
 def classify_message_with_gemini(message, api_key, data):
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel("gemini-2.0-flash")
-    prompt = f"""Trả về 1 hoặc 0 theo quy tắc:
-- Nếu tin nhắn thuộc chủ đề từ 1 đến 19, trả về 1.
-- Nếu tin nhắn thuộc chủ đề từ 20 đến 36, trả về 0.
-- Nếu tin nhắn không khớp với bất kỳ chủ đề nào, trả về null
+    prompt = f""" Trả về duy nhất một số: 1 hoặc 0.
 
-Tin nhắn: "{message}"
+        Quy tắc:
+        - Nếu tin nhắn thuộc chủ đề từ 1 đến 19, trả về 1.
+        - Nếu tin nhắn thuộc chủ đề từ 20 đến 36, trả về 0.
+        - Nếu tin nhắn không khớp với bất kỳ chủ đề nào, trả về 0.
+        Chỉ in ra số 1 hoặc 0, không được ghi thêm bất kỳ nội dung nào khác.
 
-{data}
-Chỉ trả về một số duy nhất là 1 hoặc 0 hoặc null, không được trả về một giá trị nào khác.
+    Tin nhắn: "{message}"
+    {data}
+   
+   
+    LƯU Ý: Không giải thích, không viết thêm chữ, chỉ trả về một số duy nhất là 1 hoặc 0. 
 """
     wait_time = 1
     while True:

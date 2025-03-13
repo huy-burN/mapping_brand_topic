@@ -22,13 +22,14 @@ def get_messages_from_excel(file_path, num_messages=202):
 def classify_message_with_gemini(message, api_key):
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel("gemini-2.0-flash")
-    prompt = f""" Trả về 1 hoặc 0 theo quy tắc:
+    prompt = f""" Trả về duy nhất một số: 1 hoặc 0.
+
+Quy tắc:
 - Nếu tin nhắn thuộc chủ đề từ 1 đến 19, trả về 1.
 - Nếu tin nhắn thuộc chủ đề từ 20 đến 36, trả về 0.
-- Nếu tin nhắn không khớp với bất kỳ chủ đề nào, trả về 0.
- LƯU Ý: Chỉ trả về một số duy nhất là 1 hoặc 0, không được trả về một giá trị nào khác.
+- Nếu tin nhắn không khớp với bất kỳ chủ đề nào, trả về 2
+Chỉ in ra số 1 hoặc 0, không được ghi thêm bất kỳ nội dung nào khác.
 
-    
     Tin nhắn: "{message}"
     
    "1": "Tin rao vặt, địa điểm dịch vụ (không liên quan MB Bank): Rao vặt, địa điểm gần chi nhánh MB Bank, không liên quan sản phẩm/dịch vụ.",
@@ -110,4 +111,4 @@ excel_path = r'C:/Users/admin/Downloads/test_work.xlsx'
 api_key = 'AIzaSyADwbsY0ZfoPv6eACowf1TXXl0RL49lTvk'
 output_path = r'C:/Users/admin/Downloads/result_classified.xlsx'
 
-analyze_messages(excel_path, api_key, num_messages=202, max_workers=5)
+analyze_messages(excel_path, api_key, num_messages=20, max_workers=5)
