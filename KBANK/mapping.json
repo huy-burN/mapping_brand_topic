@@ -1,35 +1,8 @@
-import json
-import pandas as pd
-import random
-import pathlib
-import requests
-import textwrap
-import time
-import google.generativeai as genai
-from concurrent.futures import ThreadPoolExecutor
+"description": "Ngân hàng Thương mại Cổ phần Quân đội (tên giao dịch tiếng Anh là Military Commercial Joint Stock Bank), gọi tắt là Ngân hàng Quân đội, viết tắt là MB, là một ngân hàng thương mại cổ phần của Việt Nam, một doanh nghiệp trực thuộc Bộ Quốc phòng. Có Mã là MBB: HOSE. Chủ tịch HĐQT là ông Lưu Trung Thái và các thành viên HĐQT khác như Vũ Thị Hải Phượng, Vũ Thành Trung, Nguyễn Thị Hải Lý, Phạm Như Ánh, Lê Viết Hải, Vũ Thái Huyền, Hoàng Thị Thu Huyền, Phạm Doãn Cương, Vũ Xuân Nam, Hoàng Văn Sâm. Gồm các công ty thành viên như Công ty CP Chứng khoán Ngân hàng TMCP Quân Đội (MBS), Công ty TNHH Bảo hiểm nhân thọ MB Ageas (MB Ageas Life) , Bảo hiểm Quân đội MIC, Công ty Tài chính tín dụng tiêu dùng TNHH MB Shinsei (Mcredit), Quỹ đầu tư MB (MB Capital). MB cung cấp các sản phẩm dịch vụ là ngân hàng số, thẻ, tiền gửi, chuyển tiền, thanh toán, cho vay, QR, dịch vụ thu hộ ngân sách, tài khoản, Số tài khoản (STK) đẹp, ATM, máy post... cho khách hàng cá nhân và doanh nghiệp. Dịch vụ ngân hàng số  gồm Mobile banking, eMB, app MBBank, SMS Banking.",
+"object_name": "ngân hàng MB",
 
-def get_messages_from_excel(file_path, num_messages=300):
-    try:
-        df = pd.read_excel(file_path, sheet_name='Data đúng')
-        if 'MESSAGE' not in df.columns:
-            return "Không tìm thấy cột MESSAGE trong file Excel"
-        return df['MESSAGE'].head(num_messages).tolist()
-    except FileNotFoundError:
-        return "Không tìm thấy file Excel"
-    except Exception as e:
-        return f"Có lỗi xảy ra: {str(e)}"
-
-def classify_message_with_gemini(message, api_key):
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-2.0-flash")
-    prompt = f"""Trả về 1 hoặc 0 theo quy tắc:
-- Nếu tin nhắn thuộc chủ đề từ 1 đến 19, trả về 1.
-- Nếu tin nhắn thuộc chủ đề từ 20 đến 36, trả về 0.
-- Nếu tin nhắn không khớp với bất kỳ chủ đề nào, trả về 0.
-    
-    Tin nhắn: "{message}"
-    
-   "1": "Tin rao vặt, địa điểm dịch vụ (không liên quan MB Bank): Rao vặt, địa điểm gần chi nhánh MB Bank, không liên quan sản phẩm/dịch vụ.",
+"mapping": {
+    "1": "Tin rao vặt, địa điểm dịch vụ (không liên quan MB Bank): Rao vặt, địa điểm gần chi nhánh MB Bank, không liên quan sản phẩm/dịch vụ.",
     "2": "Vị trí gần MB Bank (không phải nội dung chính): Đề cập vị trí gần MB Bank, không phải nội dung chính về thương hiệu.",
     "3": "Minigame, quà tặng (không ảnh hưởng thương hiệu MB Bank): Minigame, quà tặng không liên quan MB Bank hoặc không ảnh hưởng hình ảnh.",
     "4": "Giáo dục, đào tạo (không liên quan dịch vụ MB Bank): Khóa học nhắc đến MB Bank nhưng không liên quan dịch vụ tài chính.",
@@ -49,6 +22,7 @@ def classify_message_with_gemini(message, api_key):
     "18": "Cho thuê dịch vụ (không liên quan tài chính MB Bank): Dịch vụ thuê ngoài nhắc đến MB Bank, không liên quan hoạt động tài chính.",
     "19": "Nội dung ngoại ngữ (chứa từ khóa MB Bank): Nội dung tiếng nước ngoài chứa từ khóa MB Bank, không liên quan thương hiệu.",
 
+
     "20": "Báo cáo tài chính, định kỳ MB Bank: Báo cáo tài chính, kết quả kinh doanh MB Bank (MBB: HOSE), ảnh hưởng đến đánh giá nhà đầu tư.",
     "21": "Thị trường chứng khoán (liên quan MBB: HOSE): Tin tức chứng khoán liên quan cổ phiếu MBB, ảnh hưởng uy tín tài chính MB Bank.",
     "22": "Tuyển dụng MB Bank: Thông tin tuyển dụng của MB Bank, ảnh hưởng thương hiệu tuyển dụng.",
@@ -66,38 +40,7 @@ def classify_message_with_gemini(message, api_key):
     "34": "Thảo luận về trải nghiệm khách hàng với MB Bank (trên diễn đàn, mạng xã hội): Ý kiến, phản hồi của khách hàng về dịch vụ, ứng dụng, chất lượng phục vụ của MB Bank. Đây là nguồn thông tin quan trọng để đánh giá mức độ hài lòng của khách hàng."
     "35": "Thông tin khuyến mại, ưu đãi của MB Bank: Các chương trình giảm giá, hoàn tiền, quà tặng khi sử dụng dịch vụ của MB Bank. (Tách riêng với mục 3 - Minigame, quà tặng vì mục này tập trung vào khuyến mại liên quan trực tiếp đến sản phẩm/dịch vụ)."
     "36": "Tin tức về công nghệ, ứng dụng mới của MB Bank: Ví dụ: MB Bank ra mắt tính năng mới trên app MBBank, áp dụng công nghệ AI vào dịch vụ... Những thông tin này thể hiện sự đổi mới và nỗ lực cải thiện dịch vụ của ngân hàng."
-    
-    Chỉ trả về một số duy nhất là 1 hoặc 0, không được trả về một giá trị nào khác.
 
-    """
-    wait_time = 1  # Thời gian chờ ban đầu nếu gặp lỗi quota
-    while True:
-        try:
-            response = model.generate_content(prompt)
-            return response.text.strip()
-        except Exception as e:
-            error_message = str(e)
-            if "429" in error_message:  # Nếu lỗi quota thì tăng thời gian chờ và thử lại
-                print(f"Lỗi quota, thử lại sau {wait_time}s...")
-                time.sleep(wait_time)
-                wait_time *= 2  # Tăng thời gian chờ lên gấp đôi mỗi lần lỗi
-            else:
-                return f"Có lỗi xảy ra khi gọi Gemini API: {error_message}"
+  }
 
-def analyze_messages(excel_path, api_key, num_messages, max_workers):
-    messages = get_messages_from_excel(excel_path, num_messages)
-    if isinstance(messages, str):
-        print(messages)
-        return
-    
-    print("\nKết quả phân loại:")
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        results = list(executor.map(lambda msg: classify_message_with_gemini(msg, api_key), messages))
-    
-    for i, result in enumerate(results, 1):
-        print(f"Tin {i}: {result}")
 
-# Thay đổi đường dẫn và API key theo nhu cầu
-excel_path = r'C:/Users/admin/Downloads/AI_Data_MBBANK.xlsx'
-api_key = 'AIzaSyADwbsY0ZfoPv6eACowf1TXXl0RL49lTvk'
-analyze_messages(excel_path, api_key, num_messages=10, max_workers=5)
