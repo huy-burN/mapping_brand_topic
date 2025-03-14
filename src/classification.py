@@ -25,9 +25,8 @@ def classify_message_with_gemini(message, api_key):
     prompt = f""" Trả về duy nhất một số: 1 hoặc 0.
 
 Quy tắc:
-- Nếu tin nhắn thuộc chủ đề từ 1 đến 19, trả về 1.
-- Nếu tin nhắn thuộc chủ đề từ 20 đến 36, trả về 0.
-- Nếu tin nhắn không khớp với bất kỳ chủ đề nào, trả về 0.
+    - Nếu tin nhắn thuộc chủ đề SPAM trên key "###", trả về 1.
+    - Nếu tin nhắn thuộc chủ đề NONSPAM dưới key "###", trả về 0.
 Chỉ in ra số 1 hoặc 0, không được ghi thêm bất kỳ nội dung nào khác.
 
     Tin nhắn: "{message}"
@@ -51,7 +50,7 @@ Chỉ in ra số 1 hoặc 0, không được ghi thêm bất kỳ nội dung nà
     "17": "Bán sản phẩm không liên quan (nhắc đến MB Bank): Bán sản phẩm không liên quan, nhắc đến MB Bank.",
     "18": "Cho thuê dịch vụ (không liên quan tài chính MB Bank): Dịch vụ thuê ngoài nhắc đến MB Bank, không liên quan hoạt động tài chính.",
     "19": "Nội dung ngoại ngữ (chứa từ khóa MB Bank): Nội dung tiếng nước ngoài chứa từ khóa MB Bank, không liên quan thương hiệu.",
-
+    "###":"---",
     "20": "Báo cáo tài chính, định kỳ MB Bank: Báo cáo tài chính, kết quả kinh doanh MB Bank (MBB: HOSE), ảnh hưởng đến đánh giá nhà đầu tư.",
     "21": "Thị trường chứng khoán (liên quan MBB: HOSE): Tin tức chứng khoán liên quan cổ phiếu MBB, ảnh hưởng uy tín tài chính MB Bank.",
     "22": "Tuyển dụng MB Bank: Thông tin tuyển dụng của MB Bank, ảnh hưởng thương hiệu tuyển dụng.",
@@ -89,7 +88,7 @@ Chỉ in ra số 1 hoặc 0, không được ghi thêm bất kỳ nội dung nà
             else:
                 return f"Có lỗi xảy ra khi gọi Gemini API: {error_message}"
 
-def analyze_messages(excel_path, api_key, num_messages, max_workers):
+def classification(excel_path, api_key, num_messages, max_workers):
     messages = get_messages_from_excel(excel_path, num_messages)
     if isinstance(messages, str):
         print(messages)
@@ -103,6 +102,7 @@ def analyze_messages(excel_path, api_key, num_messages, max_workers):
         print(f"Tin {i}: {result}")
         
     df_result = pd.DataFrame({'MESSAGE': messages, 'CLASSIFICATION': results})
+    df_result['CLASSIFICATION'] = df_result['CLASSIFICATION'].astype(int)  # Chuyển thành số nguyên
     df_result.to_excel(output_path, index=False)
     print(f"Kết quả đã được lưu vào: {output_path}")
 
@@ -111,4 +111,4 @@ excel_path = r'C:/Users/admin/Downloads/test_work.xlsx'
 api_key = 'AIzaSyADwbsY0ZfoPv6eACowf1TXXl0RL49lTvk'
 output_path = r'C:/Users/admin/Downloads/result_classified.xlsx'
 
-analyze_messages(excel_path, api_key, num_messages=60, max_workers=5)
+classification(excel_path, api_key, num_messages=10, max_workers=5)
