@@ -3,7 +3,7 @@ import pandas as pd
 import time
 import google.generativeai as genai
 from concurrent.futures import ThreadPoolExecutor
-import re  # Thêm thư viện để làm sạch JSON
+import re
 
 def get_messages_from_excel(file_path, num_messages=200):
     try:
@@ -11,9 +11,8 @@ def get_messages_from_excel(file_path, num_messages=200):
         if 'MESSAGE' not in df.columns:
             return "Không tìm thấy cột MESSAGE trong file Excel"
         
-        # Xóa dòng có MESSAGE rỗng hoặc NaN
         df = df.dropna(subset=['MESSAGE'])
-        df['MESSAGE'] = df['MESSAGE'].astype(str)  # Chuyển về kiểu chuỗi
+        df['MESSAGE'] = df['MESSAGE'].astype(str)
         return df.sample(num_messages)
     except FileNotFoundError:
         return "Không tìm thấy file Excel"
@@ -21,10 +20,9 @@ def get_messages_from_excel(file_path, num_messages=200):
         return f"Có lỗi xảy ra: {str(e)}"
 
 def clean_json_response(response_text):
-    """Xóa ký hiệu dư thừa (```json ... ```) nếu có"""
     match = re.search(r'```json\s*(\{.*?\})\s*```', response_text, re.DOTALL)
     if match:
-        response_text = match.group(1)  # Lấy nội dung JSON bên trong
+        response_text = match.group(1)
     return response_text
 
 def classify_message_with_gemini(message, api_key):
@@ -35,27 +33,27 @@ def classify_message_with_gemini(message, api_key):
      Định dạng phản hồi:
     {{"classification": 1 hoặc 0 theo quy tắc, "predict" : số chủ đề phân loại tương ứng, "explanation": "Giải thích về phân loại."}}
     Quy tắc:
-    - Nếu tin nhắn thuộc chủ đề từ key "###" cho đến hết, trả về 0.
-    - Nếu tin nhắn thuộc chủ đề còn lại, trả về 1.
+    - Nếu tin nhắn thuộc chủ đề từ 21 đến 38, trả về 0.
+    - Nếu tin nhắn thuộc chủ đề từ 1 đến 20, trả về 1.
      Chỉ in ra số 1 hoặc 0, không được ghi thêm bất kỳ nội dung nào khác.
         
     Tin nhắn: "{message}"
     
-    "1": "Rao vặt, địa điểm dịch vụ, bất động sản (không liên quan MB Bank): Rao vặt về dịch vụ, cho thuê mặt bằng, mua bán nhà đất, không liên quan đến sản phẩm/dịch vụ MB Bank.",
+     "1": "Rao vặt, địa điểm dịch vụ, bất động sản (không liên quan MB Bank): Rao vặt về dịch vụ, cho thuê mặt bằng, mua bán nhà đất, không liên quan đến sản phẩm/dịch vụ MB Bank.",
     "2": "Vị trí gần MB Bank (không phải nội dung chính): Đề cập vị trí gần MB Bank, không phải nội dung chính về thương hiệu.",
-    "3": "Minigame, quà tặng (không ảnh hưởng thương hiệu MB Bank): Minigame, quà tặng không liên quan MB Bank hoặc không ảnh hưởng hình ảnh.",
+    "3": "Minigame, quà tặng (không liên quan thương hiệu MB Bank): Minigame, quà tặng không liên quan MB Bank hoặc không liên quan hình ảnh.",
     "4": "Giáo dục, đào tạo (không liên quan dịch vụ MB Bank): Khóa học nhắc đến MB Bank nhưng không liên quan dịch vụ tài chính.",
     "5": "Thời trang, phụ kiện (không liên quan MB Bank): Sản phẩm thời trang nhắc đến MB Bank nhưng không liên quan thông điệp tài chính.",
-    "6": "Ẩm thực (không ảnh hưởng thương hiệu MB Bank): Quảng cáo nhà hàng gần MB Bank, không ảnh hưởng thương hiệu.",
+    "6": "Ẩm thực (không liên quan thương hiệu MB Bank): Quảng cáo nhà hàng gần MB Bank, không liên quan thương hiệu.",
     "7": "Dịch vụ tiện ích (không phản ánh thương hiệu MB Bank): Dịch vụ tiện ích nhắc đến MB Bank nhưng không phản ánh giá trị thương hiệu.",
     "8": "Tuyển dụng (không phải MB Bank): Tuyển dụng ngành khác, nhắc đến MB Bank trong địa chỉ.",
     "9": "Y tế, sức khỏe (đề cập MB Bank theo địa điểm): Bài viết về y tế, bảo hiểm sức khỏe nhắc đến MB Bank theo địa điểm.",
     "10": "Sự kiện, giải trí (không liên quan tài chính MB Bank): Sự kiện văn hóa, giải trí không liên quan hình ảnh tài chính MB Bank.",
     "11": "Công nghệ, sản phẩm điện tử (không liên quan tài chính MB Bank): Bài viết về công nghệ, bán sản phẩm điện tử (điện thoại, phụ kiện, laptop...), không liên quan tài chính MB Bank.",
     "12": "Giải trí, văn hóa (không quảng bá MB Bank): Hoạt động nghệ thuật đề cập MB Bank nhưng không quảng bá thương hiệu.",
-    "13": "Quảng cáo bất đồng (không ảnh hưởng MB Bank): Tranh cãi quảng cáo không ảnh hưởng hình ảnh MB Bank.",
+    "13": "Quảng cáo bất đồng (không liên quan MB Bank): Tranh cãi quảng cáo không liên quan hình ảnh MB Bank.",
     "14": "Nhầm lẫn thương hiệu (không nghiêm trọng): Nhầm lẫn MB Bank với thương hiệu khác, không ảnh hưởng nghiêm trọng.",
-    "15": "Nội dung không rõ ràng, spam: Bài viết vô nghĩa, lỗi chính tả, không liên quan MB Bank.",
+    "15": "Nội dung không rõ ràng: Bài viết vô nghĩa, lỗi chính tả, không liên quan MB Bank.",
     "16": "Hoạt động xã hội bên thứ ba (nhắc đến MB Bank): Hoạt động từ thiện không do MB Bank tổ chức, nhắc đến tên.",
     "17": "Bán sản phẩm không liên quan (nhắc đến MB Bank): Bán sản phẩm không liên quan, nhắc đến MB Bank.",
     "18": "Cho thuê dịch vụ (không liên quan tài chính MB Bank): Dịch vụ thuê ngoài nhắc đến MB Bank, không liên quan hoạt động tài chính.",
@@ -89,15 +87,12 @@ def classify_message_with_gemini(message, api_key):
     while True:
         try:
             response = model.generate_content(prompt)
-            response_text = clean_json_response(response.text.strip())  # Làm sạch JSON
-
-            #print("Phản hồi từ API:", response_text)  # Debug
-            
-            result = json.loads(response_text)  # Phân tích JSON
-            return result.get("classification", 2), result.get("explanation", "Không có giải thích")
+            response_text = clean_json_response(response.text.strip())
+            result = json.loads(response_text)
+            return (result.get("classification", 2), result.get("predict", -1), result.get("explanation", "Không có giải thích"))
         
         except json.JSONDecodeError:
-            return 2, "Lỗi phân tích phản hồi từ API."
+            return (2, -1, "Lỗi phân tích phản hồi từ API.")
         except Exception as e:
             error_message = str(e)
             if "429" in error_message:
@@ -105,38 +100,35 @@ def classify_message_with_gemini(message, api_key):
                 time.sleep(wait_time)
                 wait_time *= 2
             else:
-                return 2, f"Có lỗi xảy ra: {error_message}"
+                return (2, -1, f"Có lỗi xảy ra: {error_message}")
 
 def calculateaccu(excel_path, output_path, api_key, num_messages, max_workers):
     df = get_messages_from_excel(excel_path, num_messages)
     if isinstance(df, str):
         print(df)
         return
-        
+    
     print("\nBắt đầu phân loại...")
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         results = list(executor.map(lambda msg: classify_message_with_gemini(msg, api_key), df['MESSAGE']))
     
-    # Chia tuple thành hai cột riêng
-    df['CLASSIFICATION'], df['EXPLANATION'] = zip(*results)
-
+    df['CLASSIFICATION'], df['PREDICT'], df['EXPLANATION'] = zip(*results)
     df['CLASSIFICATION'] = pd.to_numeric(df['CLASSIFICATION'], errors='coerce')
+    df['PREDICT'] = pd.to_numeric(df['PREDICT'], errors='coerce')
     df['Ground_truth'] = pd.to_numeric(df['Ground_truth'], errors='coerce')
-
+    
     df['CORRECT'] = df['CLASSIFICATION'] == df['Ground_truth']
     accuracy = df['CORRECT'].mean() * 100
     print(f"Độ chính xác: {accuracy:.2f}%")
     
     with pd.ExcelWriter(output_path) as writer:
         df.to_excel(writer, sheet_name='Results', index=False)
-        df[df['CORRECT'] == False][['MESSAGE', 'Ground_truth', 'CLASSIFICATION', 'EXPLANATION']].to_excel(writer, sheet_name='Misclassified', index=False)
+        df[df['CORRECT'] == False][['MESSAGE', 'Ground_truth', 'CLASSIFICATION', 'PREDICT', 'EXPLANATION']].to_excel(writer, sheet_name='Misclassified', index=False)
     
     print(f"Kết quả đã được lưu vào: {output_path}")
 
-# Cấu hình file đầu vào và đầu ra
 excel_path = r'C:/Users/admin/Downloads/test_work.xlsx'
 output_path = r'C:/Users/admin/Downloads/result.xlsx'
 api_key = 'AIzaSyAthx0l3RraNbsFabULK3vAibm5usY-i6A'
 
-calculateaccu(excel_path, output_path, api_key, num_messages=30, max_workers=10)
-
+calculateaccu(excel_path, output_path, api_key, num_messages=100, max_workers=10)
