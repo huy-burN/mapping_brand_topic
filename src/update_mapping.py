@@ -84,7 +84,7 @@ def update_object_mapping(json_file, object_name, new_data):
 def main(object_name):
     mapping_path = 'D:/GIT_files/8-3_weekend_work/src/object_mapping.json'
     result_file = 'C:/Users/admin/Downloads/result.xlsx'
-    api_key = 'AIzaSyCX64LU5zeuA6fiIukS3jhWgPLqdFTv_dc'
+    api_key = ''
     
     object_mapping = get_mapping(object_name, mapping_path)
     if object_mapping == "Chưa có dữ liệu":
