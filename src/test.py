@@ -71,5 +71,5 @@ def analyze_messages(excel_path, output_path, api_key, num_messages, max_workers
 # Thay đổi đường dẫn và API key theo nhu cầu
 excel_path = r'C:/Users/admin/Downloads/test_work.xlsx'
 output_path = r'C:/Users/admin/Downloads/result_classified.xlsx'
-api_key = 'AIzaSyADwbsY0ZfoPv6eACowf1TXXl0RL49lTvk'
+api_key = ''
 analyze_messages(excel_path, output_path, api_key, num_messages=10, max_workers=5)

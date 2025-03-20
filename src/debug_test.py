@@ -129,6 +129,6 @@ def calculateaccu(excel_path, output_path, api_key, num_messages, max_workers):
 
 excel_path = r'C:/Users/admin/Downloads/test_work.xlsx'
 output_path = r'C:/Users/admin/Downloads/result.xlsx'
-api_key = 'AIzaSyAthx0l3RraNbsFabULK3vAibm5usY-i6A'
+api_key = ''
 
 calculateaccu(excel_path, output_path, api_key, num_messages=100, max_workers=10)
