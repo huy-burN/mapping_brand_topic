@@ -45,7 +45,7 @@ def main(input_excel):
     max_workers = 4
     nonsense_messages = classification(excel_path, output_path, api_key, num_messages, max_workers)
     
-    # Xóa tin nhắn rác
+    # Xóa tin nhắn rácc
     delete_spam_message(nonsense_messages)
     
 if __name__ == "__main__":

@@ -109,7 +109,7 @@ def classification(excel_path, api_key, num_messages, max_workers):
 
 # Thay đổi đường dẫn và API key theo nhu cầu
 excel_path = r'C:/Users/admin/Downloads/test_work.xlsx'
-api_key = 'AIzaSyAthx0l3RraNbsFabULK3vAibm5usY-i6A'
+api_key = ''
 output_path = r'C:/Users/admin/Downloads/result_classified.xlsx'
 
 classification(excel_path, api_key, num_messages=30, max_workers=5)
