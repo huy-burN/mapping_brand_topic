@@ -132,3 +132,4 @@ output_path = r'C:/Users/admin/Downloads/result.xlsx'
 api_key = ''
 
 calculateaccu(excel_path, output_path, api_key, num_messages=100, max_workers=10)
+#
