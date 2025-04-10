@@ -120,7 +120,6 @@ def calculateaccu(excel_path, output_path, api_key, num_messages, max_workers):
     df['CORRECT'] = df['CLASSIFICATION'] == df['Ground_truth']
     accuracy = df['CORRECT'].mean() * 100
     print(f"Độ chính xác: {accuracy:.2f}%")
-    
     with pd.ExcelWriter(output_path) as writer:
         df.to_excel(writer, sheet_name='Results', index=False)
         df[df['CORRECT'] == False][['MESSAGE', 'Ground_truth', 'CLASSIFICATION', 'PREDICT', 'EXPLANATION']].to_excel(writer, sheet_name='Misclassified', index=False)
@@ -132,4 +131,3 @@ output_path = r'C:/Users/admin/Downloads/result.xlsx'
 api_key = ''
 
 calculateaccu(excel_path, output_path, api_key, num_messages=100, max_workers=10)
-####
