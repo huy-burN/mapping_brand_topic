@@ -78,7 +78,7 @@ Quy tắc:
     wait_time = 1  # Thời gian chờ ban đầu nếu gặp lỗi quota
     while True:
         try:
-            #
+            ##
             response = model.generate_content(prompt)
             return response.text.strip()
         except Exception as e:
