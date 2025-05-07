@@ -38,7 +38,7 @@ def main(input_excel):
     for _, row in info_df.iterrows():
         gen_mapping(row['object'], row['field'], row['definition'])
     
-    # Thực hiện phân loạii
+    # Thực hiện phân loạiii
     output_path = "classified_data.xlsx"
     api_key = "your_api_key_here"
     num_messages = len(raw_data_df)
