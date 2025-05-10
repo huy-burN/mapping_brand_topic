@@ -29,7 +29,7 @@ def main(input_excel):
     # Lấy thông tin từ sheet raw_data
     sheet2 = list(df.keys())[1]  # Giả sử sheet thứ hai chứa raw_data
     raw_data_df = df[sheet2]
-    
+    #
     # Lưu ra file mới để chuẩn bị cho classification
     excel_path = "processed_data.xlsx"
     raw_data_df.to_excel(excel_path, index=False)
