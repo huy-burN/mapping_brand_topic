@@ -34,11 +34,11 @@ def main(input_excel):
     excel_path = "processed_data.xlsx"
     raw_data_df.to_excel(excel_path, index=False)
     
-    # Trích xuất thông tinnnn
+    # Trích xuất thông tin
     for _, row in info_df.iterrows():
         gen_mapping(row['object'], row['field'], row['definition'])
     
-    # Thực hiện phân loạiiiii
+    # Thực hiện phân loại
     output_path = "classified_data.xlsx"
     api_key = "your_api_key_here"
     num_messages = len(raw_data_df)
