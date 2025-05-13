@@ -22,7 +22,7 @@ def main(input_excel):
     """
     df = pd.read_excel(input_excel, sheet_name=None)
     
-    # Lấy thông tin từ sheet đầu tiên
+    # Lấy thông tin từ sheet đầu tiêna
     sheet1 = list(df.keys())[0]
     info_df = df[sheet1]
     
