@@ -7,7 +7,7 @@ def get_info(input_file):
     """
     df = pd.read_excel(input_file, sheet_name=None)
     
-    # Lấy dữ liệu từ tab đầu tiên (giả sử tên sheet không cố định)
+    # Lấy dữ liệu từ tab đầu tiên (giả sử tên sheet không cố định))
     sheet1 = list(df.keys())[0]
     info_df = df[sheet1]
     
