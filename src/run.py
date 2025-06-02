@@ -26,7 +26,7 @@ def main(input_excel):
     sheet1 = list(df.keys())[0]
     info_df = df[sheet1]
     #xinloi ma
-    # Lấy thông tin từ sheet raw_dataa
+    # Lấy thông tin từ sheet raw_data
     sheet2 = list(df.keys())[1]  # Giả sử sheet thứ hai chứa raw_dataa
     raw_data_df = df[sheet2]
     #xotaanh nheee
