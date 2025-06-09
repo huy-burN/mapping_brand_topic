@@ -34,7 +34,7 @@ def main(input_excel):
     excel_path = "processed_data.xlsx"
     raw_data_df.to_excel(excel_path, index=False)
     
-    # Trích xuất thhông tin
+    # Trích xuất thhông tinn
     for _, row in info_df.iterrows():
         gen_mapping(row['object'], row['field'], row['definition'])
     
