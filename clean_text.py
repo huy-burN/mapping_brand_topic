@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 
-# Hàm xử lý văn bản: loại bỏ HTML tags, ký tự đặc biệt, chuyển về chữ thường,.....
+# Hàm xử lý văn bản: loại bỏ HTML tags, ký tự đặc biệt, chuyển về chữ thường,...
 def clean_text(text):
     if pd.isnull(text):
         return ""
