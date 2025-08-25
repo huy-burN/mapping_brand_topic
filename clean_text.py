@@ -9,7 +9,7 @@ def clean_text(text):
     text = re.sub(r'<[^>]+>', '', text)
     # Loại bỏ ký tự đặc biệt, chỉ giữ lại chữ và số và khoảng trắng
     text = re.sub(r'[^\w\s]', '', text)
-    # Chuyển sang chữ thường và loại bỏ khoảng trắng dư thừa
+    # Chuyển sang chữ thường và loại bỏ khoảng trắng dư thừaa
     text = text.lower().strip()
     return text
 
