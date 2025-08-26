@@ -7,7 +7,7 @@ def clean_text(text):
         return ""
     # Loại bỏ HTML tags (nếu có)
     text = re.sub(r'<[^>]+>', '', text)
-    # Loại bỏ ký tự đặc biệt, chỉ giữ lại chữ và số và khoảng trắng
+    # Loại bỏ ký tự đặc biệt, chỉ giữ lại chữ và số và khoảng trắngg
     text = re.sub(r'[^\w\s]', '', text)
     # Chuyển sang chữ thường và loại bỏ khoảng trắng dư thừaa
     text = text.lower().strip()
