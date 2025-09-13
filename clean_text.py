@@ -24,7 +24,7 @@ df_test = pd.read_excel(input_file, sheet_name=sheet_test)
 df_test['clean_message'] = df_test['MESSAGE'].apply(clean_text)
 
 # Ghi kết quả vào một sheet mới có tên "result" trong cùng file Excelel
-# Lưu ý: Chế độ "a" là append, if_sheet_exists="replace" giúp ghi đè nếu sheet "result" đã tồn tạii
+# Lưu ý: Chế độ "a" là append, if_sheet_exists="replace" giúp ghi đè nếu sheet "result" đã tồn tạii nh
 with pd.ExcelWriter(input_file, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
     # Ở đây lưu toàn bộ cột clean_message, bạn có thể thay đổi nếu muốn lưu thêm dữ liệu khác cc
     df_test[['clean_message']].to_excel(writer, sheet_name="result", index=False)
