@@ -5,7 +5,7 @@ import re
 def clean_text(text):
     if pd.isnull(text):
         return ""
-    # Loại bỏ HTML tags (nếu có))
+    # Loại bỏ HTML tags (nếu có)))
     text = re.sub(r'<[^>]+>', '', text)
     # Loại bỏ ký tự đặc biệt, chỉ giữ lại chữ và số và khoảng trắngg
     text = re.sub(r'[^\w\s]', '', text)
