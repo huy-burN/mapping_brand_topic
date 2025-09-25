@@ -13,7 +13,7 @@ def clean_text(text):
     text = text.lower().strip()
     return text
 
-# Đường dẫn file và tên sheet cần đọccc c 
+# Đường dẫn file và tên sheet cần đọc
 input_file = "C:/Users/admin/Downloads/test_work.xlsx"
 sheet_test = "test"
 
