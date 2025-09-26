@@ -33,7 +33,7 @@
 - `get_info(input_file)`: Trích xuất thông tin từ file Excel.  
 - `main(input_excel)`: Hàm chính để xử lý dữ liệu từ file Excel đầu vào.  
 
-## Yêu cầu  
+## Yêu cầu sau
 
 - Python 3.x  
 - Các thư viện:  
