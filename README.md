@@ -14,7 +14,7 @@
 
 ### Các bước xử lý  
 
-1. **Trích xuất thông tin từ file Excel**  
+1. **Trích xuất thông tin từ file Excel**
     - Chương trình đọc dữ liệu từ file Excel đầu vào.  
     - Lấy thông tin từ sheet đầu tiên (giả sử sheet này chứa các cột `object`, `field`, `definition`, `keyword`).  
 
