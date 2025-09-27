@@ -28,7 +28,7 @@
 4. **Xóa tin nhắn rác**  
     - Các tin nhắn được xác định là rác sẽ bị xóa thông qua hàm `delete_spam_message`.  
 
-### Các hàm chính  
+### Các hàm chính bao gồm
 
 - `get_info(input_file)`: Trích xuất thông tin từ file Excel.  
 - `main(input_excel)`: Hàm chính để xử lý dữ liệu từ file Excel đầu vào.  
